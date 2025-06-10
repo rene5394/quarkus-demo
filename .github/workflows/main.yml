@@ -37,12 +37,17 @@ jobs:
             -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
             -Dsonar.java.binaries=target/classes
           
-    - name: Wait for SonarCloud Quality Gate
-      uses: sonarsource/sonarcloud-quality-gate-action@master
-      with:
-        projectKey: jfragoso_quarkus-demo
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    - name: Verificar Quality Gate via API
+      run: |
+          sleep 10  # espera a que SonarCloud procese
+          STATUS=$(curl -s -u "${{ secrets.SONAR_TOKEN }}:" \
+            "https://sonarcloud.io/api/qualitygates/project_status?projectKey=TU_USUARIO_quarkus-demo" \
+            | jq -r '.projectStatus.status')
+          echo "Estado Quality Gate: $STATUS"
+          if [ "$STATUS" != "OK" ]; then
+            echo "❌ Quality Gate fallido"
+            exit 1
+          fi
 
     - name: Crear issue si Quality Gate falla
       if: failure()
