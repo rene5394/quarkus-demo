@@ -46,7 +46,7 @@ jobs:
 
     - name: Crear issue si Quality Gate falla
       if: failure()
-      uses: jfragoso/create-issue-from-file@v4
+      uses: peter-evans/create-issue-from-file@v4
       with:
         title: 🚨 Falla en SonarCloud - Quality Gate Reprobado
         content-file: .github/sonar-alert.md
