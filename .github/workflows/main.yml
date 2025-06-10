@@ -29,12 +29,27 @@ jobs:
     - name: Build with Maven
       run: mvn clean verify
 
-    - name: SonarCloud Scan
-      uses: sonarsource/sonarcloud-github-action@master
+    - name: Run SonarCloud Analysis
+      run: mvn verify sonar:sonar \
+            -Dsonar.projectKey=jfragoso_quarkus-demo \
+            -Dsonar.organization=jfragoso \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.java.binaries=target/classes
+          
+    - name: Wait for SonarCloud Quality Gate
+      uses: sonarsource/sonarcloud-quality-gate-action@v1.1.0
       with:
-        args: >
-          -Dsonar.projectKey=jfragoso_quarkus-demo
-          -Dsonar.organization=jfragoso
-          -Dsonar.host.url=https://sonarcloud.io
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.java.binaries=target/classes
+        projectKey: jfragoso_quarkus-demo
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    - name: Crear issue si Quality Gate falla
+      if: failure()
+      uses: jfragoso/create-issue-from-file@v4
+      with:
+        title: 🚨 Falla en SonarCloud - Quality Gate Reprobado
+        content-file: .github/sonar-alert.md
+        labels: seguridad, calidad, sonarcloud
+
+
