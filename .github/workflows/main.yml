@@ -36,7 +36,7 @@ jobs:
       run: |
           sleep 10  # espera a que SonarCloud procese
           STATUS=$(curl -s -u "${{ secrets.SONAR_TOKEN }}:" \
-            "https://sonarcloud.io/api/qualitygates/project_status?projectKey=TU_USUARIO_quarkus-demo" \
+            "https://sonarcloud.io/api/qualitygates/project_status?projectKey=jfragoso_quarkus-demo" \
             | jq -r '.projectStatus.status')
           echo "Estado Quality Gate: $STATUS"
           if [ "$STATUS" != "OK" ]; then
