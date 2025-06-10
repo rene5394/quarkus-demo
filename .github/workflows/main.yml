@@ -49,7 +49,7 @@ jobs:
       uses: peter-evans/create-issue-from-file@v4
       with:
         title: 🚨 Falla en SonarCloud - Quality Gate Reprobado
-        content-filepath:: .github/sonar-alert.md
+        content-filepath: .github/sonar-alert.md
         labels: seguridad, calidad, sonarcloud
 
 
