@@ -29,27 +29,11 @@ jobs:
     - name: Build with Maven
       run: mvn clean verify
 
-    - name: Run SonarCloud Analysis
-      run: mvn verify sonar:sonar -Dsonar.projectKey=rene5394_quarkus-demo -Dsonar.organization=rene5394 -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }} -Dsonar.java.binaries=target/classes
-            
-    - name: Verificar Quality Gate via API
-      run: |
-          sleep 10  # espera a que SonarCloud procese
-          STATUS=$(curl -s -u "${{ secrets.SONAR_TOKEN }}:" \
-            "https://sonarcloud.io/api/qualitygates/project_status?projectKey=rene5394_quarkus-demo" \
-            | jq -r '.projectStatus.status')
-          echo "Estado Quality Gate: $STATUS"
-          if [ "$STATUS" != "OK" ]; then
-            echo "❌ Quality Gate fallido"
-            exit 1
-          fi
-
-    - name: Crear issue si Quality Gate falla
-      if: failure()
-      uses: peter-evans/create-issue-from-file@v4
+    - name: SonarCloud Scan
+      uses: sonarsource/sonarcloud-github-action@master
       with:
-        title: 🚨 Falla en SonarCloud - Quality Gate Reprobado
-        content-filepath: .github/sonar-alert.md
-        labels: seguridad, calidad, sonarcloud
-
-
+        args: >
+          -Dsonar.projectKey=rene5394_quarkus-demo
+          -Dsonar.organization=rene5394
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
